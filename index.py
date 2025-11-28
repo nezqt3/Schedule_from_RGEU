@@ -58,4 +58,5 @@ class Main:
         self.scheduler.start()
 
 main = Main()
-main.start()
+for i in range(10):
+    main._send_schedule()
