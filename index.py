@@ -54,9 +54,8 @@ class Main:
             self.bot.send_message(chat_id=chat_id, text=text)
         
     def start(self):
-        self.scheduler.add_job(self._send_schedule, "cron", hour=22, minute=18)
+        self.scheduler.add_job(self._send_schedule, "cron", hour=22, minute=33)
         self.scheduler.start()
 
 main = Main()
-for i in range(10):
-    main._send_schedule()
+main.start()
