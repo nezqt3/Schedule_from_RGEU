@@ -64,7 +64,8 @@ def send_schedule():
 
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
 scheduler.add_job(send_schedule, "cron", hour=8, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=22, minute=58)
+scheduler.add_job(send_schedule, "cron", hour=22, minute=3)
+scheduler.add_job(send_schedule, "cron", hour=22, minute=10)
 
 def run_schedule():
     scheduler.start()
