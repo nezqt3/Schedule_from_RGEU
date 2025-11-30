@@ -3,7 +3,7 @@ from telebot import TeleBot
 from apscheduler.schedulers.background import BackgroundScheduler
 from schedule import Schedule
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import threading
 import time
 
@@ -62,10 +62,10 @@ def send_schedule():
 
         bot.send_message(chat_id, text)
 
-scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=8, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=22, minute=3)
-scheduler.add_job(send_schedule, "cron", hour=22, minute=10)
+scheduler.add_job(send_schedule, "cron", hour=15, minute=0, timezone=timezone("Europe/Moscow"))
+scheduler.add_job(send_schedule, "cron", hour=8, minute=0, timezone=timezone("Europe/Moscow"))
+scheduler.add_job(send_schedule, "cron", hour=22, minute=7, timezone=timezone("Europe/Moscow"))
+scheduler.add_job(send_schedule, "cron", hour=22, minute=15, timezone=timezone("Europe/Moscow"))
 
 def run_schedule():
     scheduler.start()
