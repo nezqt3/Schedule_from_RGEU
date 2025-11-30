@@ -1,61 +1,63 @@
-import os
+from flask import Flask
 from telebot import TeleBot
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from schedule import Schedule
-from dotenv import load_dotenv
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
 
-load_dotenv()
+app = Flask(__name__)
 
-class Main:
-    def __init__(self):
-        self.token = os.getenv("TOKEN")
-        self.ids = [os.getenv("FIRST_USER_ID"), os.getenv("SECOND_USER_ID")]
-        self.bot = TeleBot(self.token)
-        self.scheduler = BlockingScheduler()
-        
-    def _send_schedule(self):
-        now = datetime.now()
-        date = now.date()
+token = os.getenv("TOKEN")
+ids = [os.getenv("FIRST_USER_ID"), os.getenv("SECOND_USER_ID"), os.getenv("THIRD_USER_ID")]
+bot = TeleBot(token)
 
-        schedule = Schedule(date)
-        group = schedule.get_group()
-        day_of_week, date_today, lessons = schedule.get_schedule()
+scheduler = BackgroundScheduler()
 
-        for chat_id in self.ids:
+def send_schedule():
+    now = datetime.now()
+    date = now.date() + timedelta(days=1)
 
-            if not lessons:
-                text = (
-                    f"📅 {day_of_week}, {date_today}\n"
-                    f"🎓 Группа: {group}\n\n"
-                    f"Сегодня пар нет 🙂"
-                )
-                self.bot.send_message(chat_id=chat_id, text=text)
-                continue
+    schedule = Schedule(date)
+    group = schedule.get_group()
+    day_of_week, date_today, lessons = schedule.get_schedule()
 
+    for chat_id in ids:
+        if not lessons:
             text = (
                 f"📅 {day_of_week}, {date_today}\n"
                 f"🎓 Группа: {group}\n\n"
-                f"📘 Расписание:\n"
+                f"Сегодня пар нет 🙂"
             )
+            bot.send_message(chat_id, text)
+            continue
 
-            for idx, lesson in enumerate(lessons, 1):
-                text += f"\n{idx}) {lesson['subject']} ({lesson['kind']})"
-                text += f"\n   ⏰ {lesson['time']}\n"
+        text = (
+            f"📅 {day_of_week}, {date_today}\n"
+            f"🎓 Группа: {group}\n\n"
+            f"📘 Расписание:\n"
+        )
 
-                for subgroup in lesson['subgroups']:
-                    text += (
-                        f"   🔹 {subgroup['subgroup']}\n"
-                        f"      👨‍🏫 {subgroup['teacher'] or '—'}\n"
-                        f"      🏫 {subgroup['audience'] or '—'}\n"
-                    )
-                text += "\n"
+        for idx, lesson in enumerate(lessons, 1):
+            text += f"\n{idx}) {lesson['subject']} ({lesson['kind']})"
+            text += f"\n   ⏰ {lesson['time']}\n"
 
-            self.bot.send_message(chat_id=chat_id, text=text)
-        
-    def start(self):
-        self.scheduler.add_job(self._send_schedule, "cron", hour=8, minute=0)
-        self.scheduler.start()
+            for subgroup in lesson['subgroups']:
+                text += (
+                    f"   🔹 {subgroup['subgroup']}\n"
+                    f"      👨‍🏫 {subgroup['teacher'] or '—'}\n"
+                    f"      🏫 {subgroup['audience'] or '—'}\n"
+                )
+            text += "\n"
 
-main = Main()
-main.start()
+        bot.send_message(chat_id, text)
+
+scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
+scheduler.add_job(send_schedule, "cron", hour=8, minute=0)  
+scheduler.start()
+
+@app.get("/")
+def home():
+    return "Bot is running!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 3000)))

@@ -1,6 +1,6 @@
 import requests
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,7 +33,7 @@ class Schedule:
 
                     for pair in day['pairs']:
                         if not pair['lessons']:
-                            return day_of_week, date_today, lessons
+                            continue
 
                         time_str = f"{pair['startTime']} - {pair['endTime']}"
                         subject = pair['lessons'][0]['subject']
