@@ -5,8 +5,9 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install gunicorn
 
 EXPOSE 3000
 
-CMD ["python", "index.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "index:app"]

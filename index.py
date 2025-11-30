@@ -19,8 +19,9 @@ bot = TeleBot(token)
 
 scheduler = BackgroundScheduler()
 
-
 def send_schedule():
+    print("CRON: running...", flush=True)
+
     now = datetime.now()
     date = now.date() + timedelta(days=1)
 
@@ -61,17 +62,24 @@ def send_schedule():
 
         bot.send_message(chat_id, text)
 
-
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
 scheduler.add_job(send_schedule, "cron", hour=8, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=22, minute=51)
-scheduler.start()
+scheduler.add_job(send_schedule, "cron", hour=22, minute=58)
+
+def run_schedule():
+    scheduler.start()
+    print("Scheduler started", flush=True)
+
+def run_flask():
+    app.run(host="0.0.0.0", port=3000)
 
 def keep_alive():
     while True:
         print("alive", flush=True)
         time.sleep(30)
 
+threading.Thread(target=run_schedule, daemon=True).start()
+threading.Thread(target=run_flask, daemon=True).start()
 threading.Thread(target=keep_alive, daemon=True).start()
 
 if __name__ == "__main__":
