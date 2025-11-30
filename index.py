@@ -66,8 +66,6 @@ def send_schedule():
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0, timezone=timezone("Europe/Moscow"))
 scheduler.add_job(send_schedule, "cron", hour=8, minute=0, timezone=timezone("Europe/Moscow"))
 
-scheduler.add_job(send_schedule, "interval", minutes=1)
-
 def run_schedule():
     scheduler.start()
     print("Scheduler started", flush=True)
