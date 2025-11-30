@@ -53,6 +53,7 @@ def send_schedule():
 
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
 scheduler.add_job(send_schedule, "cron", hour=8, minute=0)  
+scheduler.add_job(send_schedule, "cron", hour=22, minute=30)  
 scheduler.start()
 
 @app.get("/")
