@@ -4,14 +4,21 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from schedule import Schedule
 import os
 from datetime import datetime, timedelta
+import threading
+import time
 
 app = Flask(__name__)
 
 token = os.getenv("TOKEN")
-ids = [os.getenv("FIRST_USER_ID"), os.getenv("SECOND_USER_ID"), os.getenv("THIRD_USER_ID")]
+ids = [
+    os.getenv("FIRST_USER_ID"),
+    os.getenv("SECOND_USER_ID"),
+    os.getenv("THIRD_USER_ID")
+]
 bot = TeleBot(token)
 
 scheduler = BackgroundScheduler()
+
 
 def send_schedule():
     now = datetime.now()
@@ -22,6 +29,9 @@ def send_schedule():
     day_of_week, date_today, lessons = schedule.get_schedule()
 
     for chat_id in ids:
+        if not chat_id:
+            continue
+
         if not lessons:
             text = (
                 f"📅 {day_of_week}, {date_today}\n"
@@ -51,14 +61,29 @@ def send_schedule():
 
         bot.send_message(chat_id, text)
 
+
+# === CRON задачи ===
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=8, minute=0)  
-scheduler.add_job(send_schedule, "cron", hour=22, minute=30)  
+scheduler.add_job(send_schedule, "cron", hour=8, minute=0)
+scheduler.add_job(send_schedule, "cron", hour=22, minute=37)
 scheduler.start()
+
+
+# === Keep-alive, чтобы Railway не убивал процесс ===
+def keep_alive():
+    while True:
+        print("Service is alive...", flush=True)
+        time.sleep(30)
+
+
+threading.Thread(target=keep_alive, daemon=True).start()
+
 
 @app.get("/")
 def home():
     return "Bot is running!"
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 3000)))
+    port = int(os.getenv("PORT", 3000))
+    app.run(host="0.0.0.0", port=port)
