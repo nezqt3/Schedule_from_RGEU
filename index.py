@@ -62,28 +62,17 @@ def send_schedule():
         bot.send_message(chat_id, text)
 
 
-# === CRON задачи ===
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0)
 scheduler.add_job(send_schedule, "cron", hour=8, minute=0)
-scheduler.add_job(send_schedule, "cron", hour=22, minute=37)
+scheduler.add_job(send_schedule, "cron", hour=22, minute=51)
 scheduler.start()
 
-
-# === Keep-alive, чтобы Railway не убивал процесс ===
 def keep_alive():
     while True:
-        print("Service is alive...", flush=True)
+        print("alive", flush=True)
         time.sleep(30)
-
 
 threading.Thread(target=keep_alive, daemon=True).start()
 
-
-@app.get("/")
-def home():
-    return "Bot is running!"
-
-
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 3000))
-    app.run(host="0.0.0.0", port=port)
+    bot.polling(none_stop=True, interval=0)
