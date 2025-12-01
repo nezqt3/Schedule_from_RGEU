@@ -29,6 +29,8 @@ def send_schedule():
     schedule = Schedule(date)
     group = schedule.get_group()
     day_of_week, date_today, lessons = schedule.get_schedule()
+    
+    print(lessons, flush=True)
 
     for chat_id in ids:
         if not chat_id:
@@ -63,7 +65,7 @@ def send_schedule():
 
         bot.send_message(chat_id, text)
 
-scheduler.add_job(send_schedule, "cron", hour=18, minute=55, timezone=timezone("Europe/Moscow"))
+scheduler.add_job(send_schedule, "cron", hour=15, minute=0, timezone=timezone("Europe/Moscow"))
 
 def run_schedule():
     scheduler.start()
