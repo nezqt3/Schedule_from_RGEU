@@ -23,7 +23,7 @@ class Schedule:
      
     def get_group(self):
         self.get_response()
-        if self.data in None:
+        if self.data is None:
             return "API недоступен"
         return self.data.get('instance', '—')
     
