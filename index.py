@@ -64,7 +64,6 @@ def send_schedule():
         bot.send_message(chat_id, text)
 
 scheduler.add_job(send_schedule, "cron", hour=15, minute=0, timezone=timezone("Europe/Moscow"))
-scheduler.add_job(send_schedule, "cron", hour=8, minute=0, timezone=timezone("Europe/Moscow"))
 
 def run_schedule():
     scheduler.start()

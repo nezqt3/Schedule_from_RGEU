@@ -13,15 +13,25 @@ class Schedule:
         self.data = None
         
     def get_response(self):
-        response = requests.get(url=self.url)
-        self.data = response.json()
+        try:
+            response = requests.get(url=self.url)
+            self.data = response.json()
+        except Exception as e:
+            print(f"Error fetching api: {e}", flush=True)
+            self.data = None
+        
      
     def get_group(self):
         self.get_response()
-        return self.data['instance']
+        if self.data in None:
+            return "API недоступен"
+        return self.data.get('instance', '—')
     
     def get_schedule(self):
         lessons = []
+        
+        if self.data is None:
+            return "API недоступно", "—", []
 
         for week in self.data['weeks']:
             for day in week['days']:
